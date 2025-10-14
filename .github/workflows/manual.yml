@@ -1,0 +1,30 @@
+name: Manual Trigger
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'development'
+      version:
+        description: 'App version to deploy'
+        required: false
+        default: 'latest'
+
+
+jobs:
+  run-manual-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show inputs
+        run: |
+          echo "Environment: ${{ github.event.inputs.environment }}"
+          echo "Version: ${{ github.event.inputs.version }}"
+
+      - name: Run a sample task
+        run: echo "Running manual job for ${{ github.event.inputs.environment }} environment"
