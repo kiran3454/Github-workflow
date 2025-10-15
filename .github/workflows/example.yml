@@ -1,0 +1,23 @@
+name: Secrets and Variables Example
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    env:
+      # You can mix both here if you like
+      REPO_VARIABLE: ${{ vars.MY_VARIABLE }}
+      REPO_SECRET: ${{ secrets.MY_SECRET }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Print variables (safe)
+        run: |
+          echo "Repo variable: $REPO_VARIABLE"
+          # DON'T print secrets directly, this is just for example:
+          echo "Secret is hidden: $REPO_SECRET"
