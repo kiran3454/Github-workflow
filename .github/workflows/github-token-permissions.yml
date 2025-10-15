@@ -1,0 +1,62 @@
+name: Permissions Demo
+
+on:
+  workflow_dispatch:
+
+jobs:
+  # ----------------------------
+  # READ-ONLY TOKEN EXAMPLE
+  # ----------------------------
+  read-only-pr:
+    runs-on: ubuntu-24.04
+    permissions:
+      pull-requests: read  # ✅ Can read PR data only
+    continue-on-error: true  # Avoids failing entire workflow
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gh
+
+      - name: List the first 5 open PRs (allowed)
+        run: gh pr list --limit 5
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Attempt to add a label (expected to fail)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr edit 1 --add-label "documentation"
+
+      - name: Confirm the failure
+        if: failure()
+        run: echo "❌ Write operation was blocked — token is read-only."
+
+  # ----------------------------
+  # READ-WRITE TOKEN EXAMPLE
+  # ----------------------------
+  read-write-pr:
+    runs-on: ubuntu-24.04
+    permissions:
+      pull-requests: write  # ✅ Can write PR data
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gh
+
+      - name: Add label to PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr edit 1 --add-label "documentation"
+
+      - name: Confirm success
+        if: success()
+        run: echo "✅ Write operation succeeded!"
